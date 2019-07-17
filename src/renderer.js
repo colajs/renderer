@@ -25,7 +25,7 @@ export default class Renderer {
 
   }
 
-  moveTo() {
+  addPath() {
 
   }
 
@@ -33,11 +33,11 @@ export default class Renderer {
 
   }
 
-  lineTo() {
+  moveTo() {
 
   }
 
-  clip() {
+  lineTo() {
 
   }
 
@@ -82,6 +82,10 @@ export default class Renderer {
   }
 
   transform() {
+
+  }
+
+  clip() {
 
   }
 
