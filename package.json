@@ -1,8 +1,8 @@
 {
-  "name": "sprite-template",
+  "name": "colajs-renderer",
   "version": "0.0.1",
-  "description": "The standard project template.",
-  "main": "index.js",
+  "description": "The x-platform renderer of colajs.",
+  "main": "dist/colajs-renderer.min.js",
   "scripts": {
     "start": "webpack-dev-server --env.server=examples --watch-poll",
     "compile": "webpack --env.production=true",
@@ -24,9 +24,19 @@
     "eslint-plugin-html": "^5.0.5",
     "webpack": "^4.33.0",
     "webpack-cli": "^3.3.4",
-    "webpack-dev-server": "^3.7.1"
+    "webpack-dev-server": "^3.7.1",
+    "@babel/runtime": "^7.4.5",
+    "babel-plugin-transform-gl-matrix": "^0.6.0",
+    "bound-points": "^1.0.0",
+    "extrude-polyline": "^1.0.6",
+    "gl-matrix": "^3.0.0",
+    "gl-renderer": "^0.3.2",
+    "glsl-shader-loader": "^0.1.6",
+    "normalize-path-scale": "^2.0.0",
+    "parse-svg-path": "^0.1.2",
+    "simplify-path": "^1.1.0",
+    "svg-mesh-3d": "^1.1.0",
+    "svg-path-contours": "^2.0.0"
   },
-  "dependencies": {
-    "@babel/runtime": "^7.4.5"
-  }
+  "dependencies": {}
 }
