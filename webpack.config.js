@@ -18,9 +18,11 @@ module.exports = function (env = {}) {
       libraryTarget: 'umd',
       libraryExport: 'default',
     },
-    // resolve: {
-    //
-    // },
+    resolve: {
+      alias: {
+        'gl-renderer': 'gl-renderer/dist/gl-renderer.js',
+      },
+    },
 
     module: {
       rules: [
@@ -30,6 +32,13 @@ module.exports = function (env = {}) {
           use: {
             loader: 'babel-loader',
             options: {babelrc: true},
+          },
+        },
+        {
+          test: /\.(frag|vert|glsl)$/,
+          use: {
+            loader: 'glsl-shader-loader',
+            options: {},
           },
         },
       ],

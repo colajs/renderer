@@ -17,3 +17,21 @@ export function getContext(canvas, options) {
 
   return typeof context.bufferData === 'function' ? WebGLContext(context) : CanvasContext(context);
 }
+
+export function flattenMeshes(meshes) {
+  const positions = [];
+  const cells = [];
+  const a_color = [];
+  let idx = 0;
+
+  meshes.forEach((mesh) => {
+    if(mesh) {
+      positions.push(...mesh.positions);
+      cells.push(...mesh.cells.map(cell => cell.map(c => c + idx)));
+      a_color.push(...mesh.attributes.a_color);
+      idx += mesh.positions.length;
+    }
+  });
+
+  return {positions, cells, attributes: {a_color}};
+}
