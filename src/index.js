@@ -3,57 +3,68 @@ import Figure2D from './figure2d';
 import Mesh2D from './mesh2d';
 import vertShader from './shader.vert';
 import fragShader from './shader.frag';
-import {flattenMeshes} from './utils';
+import {compress} from './utils';
 
-const d = 'M50 50L50 150L150 150Z';
+const canvas = document.querySelector('canvas');
+const renderer = new GlRenderer(canvas);
+const program = renderer.compileSync(fragShader, vertShader);
+renderer.useProgram(program);
 
-const figure = new Figure2D();
-figure.addPath(d);
+const meshList = [];
+for(let i = 0; i < 500; i++) {
+  const d = 'M0 0L0 20L20 20Z';
 
-console.log(figure.contours);
+  const figure = new Figure2D();
+  figure.addPath(d);
+  // console.log(figure.contours);
 
-const mesh = new Mesh2D(figure, {width: 512, height: 512});
-mesh.setStroke({
-  thickness: 10,
-  color: [255, 0, 255],
-});
+  const mesh = new Mesh2D(figure, {width: 512, height: 512});
+  mesh.setStroke({
+    thickness: 2,
+    color: [255, 0, 255],
+  });
 
-mesh.setFill({
-  color: [255, 0, 0],
-});
-console.log(mesh.meshData);
+  mesh.setFill({
+    color: [255, 0, 0],
+  });
 
-(async function () {
-  const canvas = document.querySelector('canvas');
-  const renderer = new GlRenderer(canvas);
-  const program = await renderer.compile(fragShader, vertShader);
-  renderer.useProgram(program);
-  const {positions, cells, attributes} = mesh.meshData;
-  const meshDatas = [];
-  for(let i = 0; i < 800; i++) {
-    const angle = Math.random() * Math.PI;
-    meshDatas.push({
-      positions,
-      cells,
-      attributes,
-      uniforms: {
-        // u_transform: [Math.sin(angle), Math.cos(angle), 0, Math.cos(angle), -Math.sin(angle), 0, 0, 0, 1],
-        u_transform: [1, 0, 0, 0, 1, 0, 0, 0, 1],
-      },
-    });
-  }
-  const meshData = flattenMeshes(meshDatas);
-  console.log(meshData);
-  // meshData.uniforms = {
-  //   u_transform: [1, 0, 0, 0, 1, 0, 0, 0, 1],
-  // };
-  function update() {
-    renderer.setMeshData(meshDatas);
-    requestAnimationFrame(update);
-  }
-  update();
-  renderer.render();
-}());
+  // mesh.setTransform([1, 0, 0, 1, 0, 100]);
+  // mesh.setTransform([1, 0, 0, 1, 0, 50]);
+  // mesh.setTransform([1, 0, 0, 1, 300 * Math.random(), 300 * Math.random()]);
+
+  meshList.push(mesh);
+}
+
+function getData() {
+  const meshDatas = meshList.map((mesh) => {
+    mesh.setTransform([1, 0, 0, 1, 500 * Math.random(), 500 * Math.random()]);
+    return mesh.meshData;
+  });
+  return compress(meshDatas);
+}
+
+window.getData = getData;
+
+// const meshData = flattenMeshes(meshDatas);
+// meshData.positions = GlRenderer.FLOAT(meshData.positions);
+// meshData.cells = GlRenderer.USHORT(meshData.cells);
+// console.log(meshData);
+// meshData.uniforms = {
+//   u_transform: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+// };
+
+
+function update() {
+  const meshData = getData();
+  renderer.setMeshData(meshData);
+  // renderer.setMeshData(meshDatas);
+  // renderer.setMeshData([
+  //   meshData, meshData, meshData, meshData,
+  // ]);
+  requestAnimationFrame(update);
+}
+update();
+renderer.render();
 
 export default {
   all: 42,

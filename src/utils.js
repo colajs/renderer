@@ -1,3 +1,4 @@
+import GlRenderer from 'gl-renderer';
 import CanvasContext from './context/canvas_context';
 import WebGLContext from './context/webgl_context';
 
@@ -34,4 +35,30 @@ export function flattenMeshes(meshes) {
   });
 
   return {positions, cells, attributes: {a_color}};
+}
+
+export function compress(meshes, maxSize = 10000) {
+  const ret = [];
+  const temp = [];
+
+  let size = 0;
+
+  for(let i = 0; i < meshes.length; i++) {
+    const mesh = meshes[i];
+    const len = mesh.positions.length;
+    if(size === 0 || size + len < maxSize) {
+      temp.push(mesh);
+    }
+    if(i === meshes.length - 1 || size + len >= maxSize) {
+      const meshData = flattenMeshes(temp);
+      meshData.positions = GlRenderer.FLOAT(meshData.positions);
+      meshData.cells = GlRenderer.USHORT(meshData.cells);
+      ret.push(meshData);
+      temp.length = 0;
+      size = 0;
+    } else {
+      size += len;
+    }
+  }
+  return ret;
 }
