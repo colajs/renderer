@@ -13,6 +13,7 @@ const _bound = Symbol('bound');
 const _strokeColor = Symbol('strokeColor');
 const _fillColor = Symbol('fillColor');
 const _transform = Symbol('transform');
+const _uniforms = Symbol('uniforms');
 
 function transformPoint(p, m, w, h) {
   let [x, y] = p;
@@ -32,6 +33,7 @@ export default class Mesh2D {
     this[_fill] = null;
     this[_bound] = [[0, 0], [width, height]];
     this[_transform] = [1, 0, 0, 1, 0, 0];
+    this[_uniforms] = {};
   }
 
   setStroke({thickness = 1, cap = 'butt', join = 'miter', miterLimit = 0, color = [0, 0, 0, 0]} = {}) {
@@ -63,6 +65,14 @@ export default class Mesh2D {
     return positions;
   }
 
+  setUniforms(uniforms = {}) {
+    Object.assign(this[_uniforms], uniforms);
+  }
+
+  get uniforms() {
+    return this[_uniforms];
+  }
+
   get transform() {
     return this[_transform];
   }
@@ -83,6 +93,7 @@ export default class Mesh2D {
         const mesh = triangulate(contours);
         mesh.positions = mesh.positions.map((p) => {
           p[1] = this[_bound][1][1] - p[1];
+          p.push(1);
           return p;
         });
         mesh.attributes = {
@@ -96,6 +107,7 @@ export default class Mesh2D {
         _meshes.forEach((mesh) => {
           mesh.positions = mesh.positions.map((p) => {
             p[1] = this[_bound][1][1] - p[1];
+            p.push(0);
             return p;
           });
           mesh.attributes = {
@@ -108,6 +120,7 @@ export default class Mesh2D {
 
     const mesh = flattenMeshes([meshes.fill, meshes.stroke]);
     normalize(mesh.positions, this[_bound]);
+    mesh.uniforms = this[_uniforms];
     this[_mesh] = mesh;
     return this[_mesh];
   }

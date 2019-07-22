@@ -10,61 +10,73 @@ const renderer = new GlRenderer(canvas);
 const program = renderer.compileSync(fragShader, vertShader);
 renderer.useProgram(program);
 
-const meshList = [];
-for(let i = 0; i < 500; i++) {
-  const d = 'M0 0L0 20L20 20Z';
+const textureURL = 'https://p4.ssl.qhimg.com/t012170360e1552ce17.png';
 
-  const figure = new Figure2D();
-  figure.addPath(d);
-  // console.log(figure.contours);
+(async function () {
+  const texture = await renderer.loadTexture(textureURL);
 
-  const mesh = new Mesh2D(figure, {width: 512, height: 512});
-  mesh.setStroke({
-    thickness: 2,
-    color: [255, 0, 255],
-  });
+  const meshList = [];
+  for(let i = 0; i < 2500; i++) {
+    const d = 'M0 0L0 20L20 20Z';
 
-  mesh.setFill({
-    color: [255, 0, 0],
-  });
+    const figure = new Figure2D();
+    figure.addPath(d);
+    // console.log(figure.contours);
 
-  // mesh.setTransform([1, 0, 0, 1, 0, 100]);
-  // mesh.setTransform([1, 0, 0, 1, 0, 50]);
-  // mesh.setTransform([1, 0, 0, 1, 300 * Math.random(), 300 * Math.random()]);
+    const mesh = new Mesh2D(figure, {width: 512, height: 512});
+    mesh.setStroke({
+      thickness: 2,
+      color: [255, 0, 255],
+    });
 
-  meshList.push(mesh);
-}
+    mesh.setFill({
+      color: [255, 0, 0],
+    });
 
-function getData() {
-  const meshDatas = meshList.map((mesh) => {
-    mesh.setTransform([1, 0, 0, 1, 500 * Math.random(), 500 * Math.random()]);
-    return mesh.meshData;
-  });
-  return compress(meshDatas);
-}
+    if(i > 1500) {
+      mesh.setUniforms({u_mixcolor: [0, 128, 0], u_texFlag: 0});
+    } else {
+      mesh.setUniforms({u_mixcolor: [0, 0, 0], u_texFlag: 1, u_texSampler: texture});
+    }
 
-window.getData = getData;
+    // mesh.setTransform([1, 0, 0, 1, 0, 100]);
+    // mesh.setTransform([1, 0, 0, 1, 0, 50]);
+    // mesh.setTransform([1, 0, 0, 1, 300 * Math.random(), 300 * Math.random()]);
 
-// const meshData = flattenMeshes(meshDatas);
-// meshData.positions = GlRenderer.FLOAT(meshData.positions);
-// meshData.cells = GlRenderer.USHORT(meshData.cells);
-// console.log(meshData);
-// meshData.uniforms = {
-//   u_transform: [1, 0, 0, 0, 1, 0, 0, 0, 1],
-// };
+    meshList.push(mesh);
+  }
+
+  function getData() {
+    const meshDatas = meshList.map((mesh) => {
+      mesh.setTransform([1, 0, 0, 1, 500 * Math.random(), 500 * Math.random()]);
+      return mesh.meshData;
+    });
+    return compress(meshDatas);
+  }
+
+  window.getData = getData;
+
+  // const meshData = flattenMeshes(meshDatas);
+  // meshData.positions = GlRenderer.FLOAT(meshData.positions);
+  // meshData.cells = GlRenderer.USHORT(meshData.cells);
+  // console.log(meshData);
+  // meshData.uniforms = {
+  //   u_transform: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+  // };
 
 
-function update() {
-  const meshData = getData();
-  renderer.setMeshData(meshData);
-  // renderer.setMeshData(meshDatas);
-  // renderer.setMeshData([
-  //   meshData, meshData, meshData, meshData,
-  // ]);
-  requestAnimationFrame(update);
-}
-update();
-renderer.render();
+  function update() {
+    const meshData = getData();
+    renderer.setMeshData(meshData);
+    // renderer.setMeshData(meshDatas);
+    // renderer.setMeshData([
+    //   meshData, meshData, meshData, meshData,
+    // ]);
+    requestAnimationFrame(update);
+  }
+  update();
+  renderer.render();
+}());
 
 export default {
   all: 42,
