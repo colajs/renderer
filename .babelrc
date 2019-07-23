@@ -13,10 +13,10 @@
     ]
   ],
   "plugins": [
+    "@babel/plugin-proposal-class-properties",
     ["transform-gl-matrix", {
       "glMatrixArray": false
     }],
-    "@babel/plugin-proposal-class-properties",
     [
       "@babel/plugin-transform-runtime",
       {

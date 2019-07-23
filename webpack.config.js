@@ -1,26 +1,30 @@
 const webpack = require('webpack');
 const path = require('path');
-const packageConfig = require('./package.json');
-
-function toCamelCase(str) {
-  return str.replace(/-([a-z])/ig, (s, p1) => p1.toUpperCase());
-}
+const fs = require('fs');
 
 module.exports = function (env = {}) {
+  let babelConf;
+
+  const babelRC = env.esnext ? './.es6.babelrc' : './.babelrc';
+  if(fs.existsSync(babelRC)) {
+    babelConf = JSON.parse(fs.readFileSync(babelRC));
+    babelConf.babelrc = false;
+  }
+
   return {
     mode: env.production ? 'production' : 'none',
     entry: './src/index',
     output: {
       path: path.resolve(__dirname, 'dist'),
-      filename: `${packageConfig.name}.js`,
+      filename: 'mesh.js',
       publicPath: '/js/',
-      library: [toCamelCase(packageConfig.name)],
+      library: 'meshjs',
       libraryTarget: 'umd',
-      libraryExport: 'default',
+      // libraryExport: 'default',
     },
     resolve: {
       alias: {
-        'gl-renderer': 'gl-renderer/dist/gl-renderer.js',
+        'gl-renderer': 'gl-renderer/src',
       },
     },
 
@@ -28,10 +32,10 @@ module.exports = function (env = {}) {
       rules: [
         {
           test: /\.js$/,
-          exclude: /node_modules\/.*/,
+          exclude: /node_modules\/(?!gl-renderer).*/,
           use: {
             loader: 'babel-loader',
-            options: {babelrc: true},
+            options: babelConf,
           },
         },
         {

@@ -14,6 +14,7 @@ const _strokeColor = Symbol('strokeColor');
 const _fillColor = Symbol('fillColor');
 const _transform = Symbol('transform');
 const _uniforms = Symbol('uniforms');
+const _texOptions = Symbol('texOptions');
 
 function transformPoint(p, m, w, h) {
   let [x, y] = p;
@@ -24,6 +25,22 @@ function transformPoint(p, m, w, h) {
   p[0] = x * m[0] + y * m[2] + m[4];
   p[1] = h - (x * m[1] + y * m[3] + m[5]);
   return p;
+}
+
+function isUnitTransform(m) {
+  return m[0] === 1 && m[1] === 0 && m[2] === 0 && m[3] === 1 && m[4] === 0 && m[5] === 0;
+}
+
+function getTexCoord([x, y], [ox, oy, w, h], {scale, repeat}) {
+  // console.log(imgWidth, imgHeight);
+
+  if(!scale) {
+    x /= w;
+    y = 1 - (1 - y) / h;
+    x -= ox;
+    y += oy;
+  }
+  return [x, y];
 }
 
 export default class Mesh2D {
@@ -67,6 +84,45 @@ export default class Mesh2D {
 
   setUniforms(uniforms = {}) {
     Object.assign(this[_uniforms], uniforms);
+  }
+
+  setTexture(texture, options = {}) {
+    this.setUniforms({
+      u_texFlag: 1,
+      u_texSampler: texture,
+    });
+    this[_texOptions] = options;
+    const mesh = this.meshData;
+
+    const transform = this[_transform];
+    const {width: imgWidth, height: imgHeight} = texture._img;
+    const rect = options.rect || [0, 0, imgWidth, imgHeight];
+
+    const [w, h] = this[_bound][1];
+    if(!isUnitTransform(transform)) {
+      const m = mat2d.invert(transform);
+      mesh.textureCoord = mesh.positions.map(([x, y, z]) => {
+        if(z > 0) {
+          [x, y] = transformPoint([x, y], m, w, h);
+          [x, y] = [x / w, y / h];
+          return getTexCoord([x, y], [rect[0] / w, rect[1] / h, rect[2] / w, rect[3] / h], this[_texOptions]);
+        }
+        return [0, 0];
+      });
+    } else {
+      mesh.textureCoord = mesh.positions.map(([x, y, z]) => {
+        if(z > 0) { // fillTag
+          [x, y] = [0.5 * (x + 1), 0.5 * (y + 1)];
+          return getTexCoord([x, y], [rect[0] / w, rect[1] / h, rect[2] / w, rect[3] / h], this[_texOptions]);
+        }
+        return [0, 0];
+      });
+    }
+    if(options.repeat) {
+      this[_uniforms].u_repeat = 1;
+    } else {
+      this[_uniforms].u_repeat = 0;
+    }
   }
 
   get uniforms() {
@@ -120,7 +176,11 @@ export default class Mesh2D {
 
     const mesh = flattenMeshes([meshes.fill, meshes.stroke]);
     normalize(mesh.positions, this[_bound]);
+    if(!this[_uniforms].u_texSampler) {
+      mesh.textureCoord = mesh.positions.map(() => [0, 0]);
+    }
     mesh.uniforms = this[_uniforms];
+    if(!mesh.uniforms.u_texFlag) mesh.uniforms.u_texFlag = 0;
     this[_mesh] = mesh;
     return this[_mesh];
   }

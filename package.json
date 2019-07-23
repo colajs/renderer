@@ -1,8 +1,8 @@
 {
-  "name": "colajs-renderer",
+  "name": "meshjs",
   "version": "0.0.1",
-  "description": "The webgl renderer of colajs.",
-  "main": "dist/colajs-renderer.min.js",
+  "description": "A super fast 2D renderer based on webGL.",
+  "main": "dist/mesh.min.js",
   "scripts": {
     "start": "webpack-dev-server --env.server=examples --watch-poll",
     "compile": "webpack --env.production=true",
@@ -26,19 +26,19 @@
     "eslint-plugin-html": "^5.0.5",
     "extrude-polyline": "^1.0.6",
     "gl-matrix": "^3.0.0",
-    "gl-renderer": "^0.4.0",
+    "gl-renderer": "^0.4.1",
     "glsl-shader-loader": "^0.1.6",
     "normalize-path-scale": "^2.0.0",
     "parse-svg-path": "^0.1.2",
     "simplify-path": "^1.1.0",
     "svg-mesh-3d": "^1.1.0",
     "svg-path-contours": "^2.0.0",
+    "triangulate-contours": "^1.0.2",
     "webpack": "^4.33.0",
     "webpack-cli": "^3.3.4",
-    "webpack-dev-server": "^3.7.1",
-    "triangulate-contours": "^1.0.2"
+    "webpack-dev-server": "^3.7.1"
   },
   "dependencies": {
-    "@babel/runtime": "^7.4.5"    
+    "@babel/runtime": "^7.4.5"
   }
 }

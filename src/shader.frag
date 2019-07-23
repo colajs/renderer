@@ -4,15 +4,25 @@ precision mediump float;
 
 uniform sampler2D u_texSampler;
 uniform int u_texFlag;
+uniform int u_repeat;
 
-varying vec3 vColor;
+varying vec4 vColor;
 varying vec2 vTextureCoord;
 varying float flagBackground;
 
 void main() {
-  gl_FragColor = vec4(vColor, 1.0);
-  // gl_FragColor = vec4(1.0, 0, 0, 1.0);
-  if(u_texFlag > 0 && flagBackground > 0.0) {
-    gl_FragColor = texture2D(u_texSampler, vTextureCoord);
+  gl_FragColor = vColor;
+  float bgAlpha = vColor.a;
+
+  vec2 texCoord = vTextureCoord;
+
+  if(u_repeat == 1) {
+    texCoord = fract(texCoord);
+  }
+
+  if(u_texFlag > 0 && flagBackground > 0.0 
+    && texCoord.x <= 1.0 && texCoord.x >= 0.0
+    && texCoord.y <= 1.0 && texCoord.y >= 0.0) {
+    gl_FragColor = mix(vColor, texture2D(u_texSampler, texCoord), bgAlpha);
   }
 }

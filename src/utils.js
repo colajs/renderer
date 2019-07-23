@@ -1,26 +1,9 @@
 import GlRenderer from 'gl-renderer';
-import CanvasContext from './context/canvas_context';
-import WebGLContext from './context/webgl_context';
-
-export function getContext(canvas, options) {
-  const names = ['webgl', 'experimental-webgl', 'webkit-3d', 'moz-webgl', '2d'];
-  let context = null;
-  for(let i = 0; i < names.length; ++i) {
-    try {
-      context = canvas.getContext(names[i], options);
-    } catch (e) {
-      // no-empty
-    }
-    if(context) {
-      break;
-    }
-  }
-
-  return typeof context.bufferData === 'function' ? WebGLContext(context) : CanvasContext(context);
-}
+// import { loadImage } from 'gl-renderer/src/helpers';
 
 export function flattenMeshes(meshes) {
   const positions = [];
+  const textureCoord = [];
   const cells = [];
   const a_color = [];
   let idx = 0;
@@ -31,11 +14,18 @@ export function flattenMeshes(meshes) {
       positions.push(...mesh.positions);
       cells.push(...mesh.cells.map(cell => cell.map(c => c + idx)));
       a_color.push(...mesh.attributes.a_color);
+      if(mesh.textureCoord) textureCoord.push(...mesh.textureCoord);
       idx += mesh.positions.length;
     }
   });
 
-  return {positions, cells, attributes: {a_color}, uniforms};
+  const ret = {positions, cells, attributes: {a_color}, uniforms};
+
+  if(textureCoord.length) {
+    ret.textureCoord = textureCoord;
+  }
+
+  return ret;
 }
 
 function compareUniform(a, b) {
@@ -67,6 +57,7 @@ function packData(temp, ret) {
     const meshData = flattenMeshes(temp);
     meshData.positions = GlRenderer.FLOAT(meshData.positions);
     meshData.cells = GlRenderer.USHORT(meshData.cells);
+    if(meshData.textureCoord) meshData.textureCoord = GlRenderer.FLOAT(meshData.textureCoord);
     ret.push(meshData);
     temp.length = 0;
   }
@@ -79,14 +70,14 @@ export function compress(meshes, maxSize = 10000) {
   let size = 0;
 
   for(let i = 0; i < meshes.length; i++) {
-    const mesh = meshes[i];
+    const mesh = meshes[i].meshData;
     const len = mesh.positions.length;
 
     if(size + len > maxSize) { // cannot merge
       packData(temp, ret);
       size = 0;
     } else if(size) {
-      const lastMesh = meshes[i - 1];
+      const lastMesh = meshes[i - 1].meshData;
       if(!compareUniform(lastMesh, mesh)) {
         packData(temp, ret);
         size = 0;

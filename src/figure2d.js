@@ -1,6 +1,7 @@
 import parse from 'parse-svg-path';
 import simplify from 'simplify-path';
 import contours from 'svg-path-contours';
+import getBounds from 'bound-points';
 
 function buildCommand(key, args) {
   return `${key}${args.join(' ')}`;
@@ -35,6 +36,10 @@ export default class Figure2D {
 
   get path() {
     return this[_path];
+  }
+
+  get BoundingBox() {
+    return getBounds(this.contours);
   }
 
   get simplify() {
