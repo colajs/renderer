@@ -1,7 +1,7 @@
 {
   "name": "meshjs",
   "version": "0.0.1",
-  "description": "A super fast 2D renderer based on webGL.",
+  "description": "A super fast 2D renderer based on WebGL.",
   "main": "dist/mesh.min.js",
   "scripts": {
     "start": "webpack-dev-server --env.server=examples --watch-poll",
