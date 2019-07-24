@@ -33,13 +33,13 @@ function isUnitTransform(m) {
 
 function getTexCoord([x, y], [ox, oy, w, h], {scale, repeat}) {
   // console.log(imgWidth, imgHeight);
-
   if(!scale) {
     x /= w;
     y = 1 - (1 - y) / h;
     x -= ox;
     y += oy;
   }
+
   return [x, y];
 }
 
@@ -47,7 +47,12 @@ export default class Mesh2D {
   constructor(figure, {width, height} = {width: 150, height: 150}) {
     this[_figure] = figure;
     this[_stroke] = null;
-    this[_fill] = null;
+    this[_fill] = {
+      delaunay: true,
+      clean: true,
+      randomization: 0,
+    };
+    this[_fillColor] = [0, 0, 0, 0];
     this[_bound] = [[0, 0], [width, height]];
     this[_transform] = [1, 0, 0, 1, 0, 0];
     this[_uniforms] = {};
@@ -97,6 +102,8 @@ export default class Mesh2D {
     const transform = this[_transform];
     const {width: imgWidth, height: imgHeight} = texture._img;
     const rect = options.rect || [0, 0, imgWidth, imgHeight];
+    if(rect[2] == null) rect[2] = imgWidth;
+    if(rect[3] == null) rect[3] = imgHeight;
 
     const [w, h] = this[_bound][1];
     if(!isUnitTransform(transform)) {
@@ -105,7 +112,7 @@ export default class Mesh2D {
         if(z > 0) {
           [x, y] = transformPoint([x, y], m, w, h);
           [x, y] = [x / w, y / h];
-          return getTexCoord([x, y], [rect[0] / w, rect[1] / h, rect[2] / w, rect[3] / h], this[_texOptions]);
+          return getTexCoord([x, y], [rect[0] / imgWidth, rect[1] / imgHeight, rect[2] / w, rect[3] / h], this[_texOptions]);
         }
         return [0, 0];
       });
@@ -113,7 +120,7 @@ export default class Mesh2D {
       mesh.textureCoord = mesh.positions.map(([x, y, z]) => {
         if(z > 0) { // fillTag
           [x, y] = [0.5 * (x + 1), 0.5 * (y + 1)];
-          return getTexCoord([x, y], [rect[0] / w, rect[1] / h, rect[2] / w, rect[3] / h], this[_texOptions]);
+          return getTexCoord([x, y], [rect[0] / imgWidth, rect[1] / imgHeight, rect[2] / w, rect[3] / h], this[_texOptions]);
         }
         return [0, 0];
       });

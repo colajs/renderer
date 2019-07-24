@@ -18,7 +18,8 @@
     const textureURL = 'https://p4.ssl.qhimg.com/t012170360e1552ce17.png';
 
     (async function () {
-      const texture = await renderer.loadTexture(textureURL);
+      let texture = await renderer.loadTexture(textureURL);
+      texture = renderer.createText('abcdefg');
 
       const meshList = [];
       const NUM = 1;
@@ -35,17 +36,17 @@
           color: [1, 0, 1, 1],
         });
 
-        mesh.setFill({
-          color: [1, 0, 0, 1],
-        });
+        // mesh.setFill({
+        //   color: [1, 0, 0, 1],
+        // });
 
         // mesh.setTransform([Math.cos(Math.PI / 4), Math.sin(Math.PI / 4), -Math.sin(Math.PI / 4), Math.cos(Math.PI / 4), 100, 100]);
 
         // if(i > NUM / 2) {
         mesh.setTexture(texture, {
           scale: false,
-          repeat: true,
-          rect: [100, 100, 200, 200],
+          repeat: false,
+          rect: [50, 30],
         });
         // }
 
@@ -54,7 +55,7 @@
 
       function getData() {
         return meshList.map((mesh) => {
-          // mesh.setTransform([1, 0, 0, 1, 500 * Math.random(), 500 * Math.random()]);
+          mesh.setTransform([1, 0, 0, 1, 500 * Math.random(), 500 * Math.random()]);
           // mesh.setTransform([1, 0, 0, 1, 0, 0]);
           // mesh.setTransform([Math.cos(Math.PI / 4), Math.sin(Math.PI / 4), -Math.sin(Math.PI / 4), Math.cos(Math.PI / 4), 100, 100]);
           return mesh;

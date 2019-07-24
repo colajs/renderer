@@ -12,7 +12,6 @@ varying float flagBackground;
 
 void main() {
   gl_FragColor = vColor;
-  float bgAlpha = vColor.a;
 
   vec2 texCoord = vTextureCoord;
 
@@ -23,6 +22,7 @@ void main() {
   if(u_texFlag > 0 && flagBackground > 0.0 
     && texCoord.x <= 1.0 && texCoord.x >= 0.0
     && texCoord.y <= 1.0 && texCoord.y >= 0.0) {
-    gl_FragColor = mix(vColor, texture2D(u_texSampler, texCoord), bgAlpha);
+    vec4 texColor = texture2D(u_texSampler, texCoord);
+    gl_FragColor = mix(vColor, texColor, texColor.a);
   }
 }

@@ -2,7 +2,7 @@ import GlRenderer from 'gl-renderer';
 import {loadImage} from 'gl-renderer/src/helpers';
 import vertShader from './shader.vert';
 import fragShader from './shader.frag';
-import {compress} from './utils';
+import {compress, createText} from './utils';
 
 export default class Renderer extends GlRenderer {
   constructor(canvas, opts = {}) {
@@ -22,6 +22,15 @@ export default class Renderer extends GlRenderer {
 
   loadImage(src) {
     return loadImage(src);
+  }
+
+  createText(text, {font = '16px arial', fillColor = null, strokeColor = null} = {}) {
+    const img = createText(text, {font, fillColor, strokeColor});
+    window.canvascc = img;
+    const texture = this.createTexture(img);
+    texture._img = img;
+    this.textures.push(texture);
+    return texture;
   }
 
   drawMeshes(meshes) {
