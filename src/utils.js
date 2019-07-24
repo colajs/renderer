@@ -63,7 +63,7 @@ function packData(temp, ret) {
   }
 }
 
-export function compress(meshes, maxSize = 10000) {
+export function compress(meshes, maxSize = 5000) {
   const ret = [];
   const temp = [];
 
@@ -270,6 +270,8 @@ export function createText(text, {font, fillColor, strokeColor}) {
     context.strokeText(text, left, top);
   }
   context.restore();
+
+  textCache[key] = canvas;
 
   return canvas;
 }

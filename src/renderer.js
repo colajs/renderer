@@ -16,6 +16,8 @@ export default class Renderer extends GlRenderer {
     img.height = 1;
     const texture = this.createTexture(img);
     const gl = this.gl;
+    // gl.enable(gl.BLEND);
+    // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, texture);
   }

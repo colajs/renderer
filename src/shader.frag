@@ -24,5 +24,6 @@ void main() {
     && texCoord.y <= 1.0 && texCoord.y >= 0.0) {
     vec4 texColor = texture2D(u_texSampler, texCoord);
     gl_FragColor = mix(vColor, texColor, texColor.a);
+    // gl_FragColor = texColor;
   }
 }
