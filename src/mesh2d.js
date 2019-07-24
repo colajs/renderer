@@ -15,6 +15,7 @@ const _fillColor = Symbol('fillColor');
 const _transform = Symbol('transform');
 const _uniforms = Symbol('uniforms');
 const _texOptions = Symbol('texOptions');
+const _enableBlend = Symbol('enableBlend');
 
 function transformPoint(p, m, w, h) {
   let [x, y] = p;
@@ -47,25 +48,34 @@ export default class Mesh2D {
   constructor(figure, {width, height} = {width: 150, height: 150}) {
     this[_figure] = figure;
     this[_stroke] = null;
-    this[_fill] = {
-      delaunay: true,
-      clean: true,
-      randomization: 0,
-    };
-    this[_fillColor] = [0, 0, 0, 0];
+    this[_fill] = null;
+    // this[_fill] = {
+    //   delaunay: true,
+    //   clean: true,
+    //   randomization: 0,
+    // };
+    // this[_fillColor] = [0, 0, 0, 0];
     this[_bound] = [[0, 0], [width, height]];
     this[_transform] = [1, 0, 0, 1, 0, 0];
     this[_uniforms] = {};
   }
 
   setStroke({thickness = 1, cap = 'butt', join = 'miter', miterLimit = 0, color = [0, 0, 0, 0]} = {}) {
+    this[_mesh] = null;
     this[_stroke] = stroke({thickness, cap, join, miterLimit});
     this[_strokeColor] = color;
+    this[_enableBlend] = color[3] < 1.0;
   }
 
   setFill({delaunay = true, clean = true, randomization = 0, color = [0, 0, 0, 0]}) {
+    this[_mesh] = null;
     this[_fill] = {delaunay, clean, randomization};
     this[_fillColor] = color;
+    this[_enableBlend] = color[3] < 1.0;
+  }
+
+  get enableBlend() {
+    return this[_enableBlend];
   }
 
   setTransform(m) {
@@ -92,6 +102,9 @@ export default class Mesh2D {
   }
 
   setTexture(texture, options = {}) {
+    if(!this[_fill]) {
+      this.setFill({color: [0, 0, 0, 0]});
+    }
     this.setUniforms({
       u_texFlag: 1,
       u_texSampler: texture,
