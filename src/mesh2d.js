@@ -5,8 +5,7 @@ import stroke from './extrude-polyline';
 import {flattenMeshes} from './utils';
 
 const _mesh = Symbol('mesh');
-const _path = Symbol('path');
-const _figure = Symbol('figure');
+const _contours = Symbol('contours');
 const _stroke = Symbol('stroke');
 const _fill = Symbol('fill');
 const _bound = Symbol('bound');
@@ -46,7 +45,7 @@ function getTexCoord([x, y], [ox, oy, w, h], {scale, repeat}) {
 
 export default class Mesh2D {
   constructor(figure, {width, height} = {width: 150, height: 150}) {
-    this[_figure] = figure;
+    this[_contours] = figure.contours;
     this[_stroke] = null;
     this[_fill] = null;
     // this[_fill] = {
@@ -60,7 +59,9 @@ export default class Mesh2D {
     this[_uniforms] = {};
   }
 
-  setStroke({thickness = 1, cap = 'butt', join = 'miter', miterLimit = 0, color = [0, 0, 0, 0]} = {}) {
+  // join: 'miter' or 'bevel'
+  // cap: 'butt' or 'square'
+  setStroke({thickness = 1, cap = 'butt', join = 'miter', miterLimit = 10, color = [0, 0, 0, 0]} = {}) {
     this[_mesh] = null;
     this[_stroke] = stroke({thickness, cap, join, miterLimit});
     this[_strokeColor] = color;
@@ -155,13 +156,11 @@ export default class Mesh2D {
 
   // {stroke, fill}
   get meshData() {
-    if(this[_mesh] && this[_figure].path === this[_path]) {
+    if(this[_mesh]) {
       return this[_mesh];
     }
 
-    this[_path] = this[_figure].path;
-
-    const contours = this[_figure].contours;
+    const contours = this[_contours];
     const meshes = {};
 
     if(contours && contours.length) {

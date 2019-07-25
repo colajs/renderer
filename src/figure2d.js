@@ -2,6 +2,7 @@ import parse from 'parse-svg-path';
 import simplify from 'simplify-path';
 import contours from 'svg-path-contours';
 import getBounds from 'bound-points';
+import arc from 'arc-to';
 
 function buildCommand(key, args) {
   return `${key}${args.join(' ')}`;
@@ -24,18 +25,14 @@ export default class Figure2D {
   }
 
   get contours() {
-    if(this[_contours]) return this[_contours];
+    if(this[_contours]) return this[_contours].map(c => [...c]);
     if(this[_path]) {
       this[_contours] = contours(parse(this[_path])).map((path) => {
         return simplify(path, this[_simplify]);
       });
-      return this[_contours];
+      return this[_contours].map(c => [...c]);
     }
     return null;
-  }
-
-  get path() {
-    return this[_path];
   }
 
   get BoundingBox() {
@@ -68,6 +65,21 @@ export default class Figure2D {
   arcTo(rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y) {
     this[_contours] = null;
     this[_path] += buildCommand('A', [rx, ry, xAxisRotation, largeArcFlag, sweepFlag, x, y]);
+  }
+
+  arc(x, y, radius, startAngle, endAngle, anticlockwise = 0) {
+    const points = arc(x, y, radius, startAngle, endAngle, anticlockwise);
+    const ang = Math.abs(endAngle - startAngle);
+    const path = `${points.map(([x, y]) => `${x} ${y}`).join('L')}`;
+    if(ang < 2 * Math.PI) {
+      this[_path] += `M${x} ${y}L${path}Z`;
+    } else {
+      this[_path] += `M${path}`;
+    }
+  }
+
+  rect(x, y, width, height) {
+    this[_path] += `M${x} ${y}L${x + width} ${y}L${x + width} ${y + height}L${x} ${y + height}Z`;
   }
 
   quadraticCurveTo(x1, y1, x, y) {

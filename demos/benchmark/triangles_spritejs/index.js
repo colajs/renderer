@@ -1,6 +1,7 @@
 const {Scene, Path} = spritejs;
 
 const scene = new Scene('#app', {
+  viewport: ['auto', 'auto'],
   resolution: [512, 512],
 });
 

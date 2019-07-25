@@ -22,13 +22,15 @@
       texture = renderer.createText('abcdefg');
 
       const meshList = [];
-      const NUM = 1000;
+      const NUM = 1;
       const size = 50;
       for(let i = 0; i < NUM; i++) {
-        const d = `M0 0L0 ${size}L${size} ${size}L${size} 0Z`;
-
+        const d = `M0 0L0 ${size}L${size} ${size}Z`;
+        // const d = 'M30 30A10 10 1 1 0 10 10z';
         const figure = new Figure2D();
         figure.addPath(d);
+        // figure.arc(50, 50, 30, 0, 2 * Math.PI);
+        // figure.rect(50, 50, 100, 100);
         // console.log(figure.contours);
 
         const mesh = new Mesh2D(figure, {width: 512, height: 512});
