@@ -1,0 +1,12 @@
+body {
+  display: flex;
+}
+
+#app {
+  width: 100%;
+  max-width: 512px;
+  padding-bottom: 100%;
+  display: inline-block;
+  margin: auto;
+  background: white;
+}
